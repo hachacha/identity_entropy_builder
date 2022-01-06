@@ -7,6 +7,7 @@ from selenium.webdriver.common.keys import Keys
 import cred as c
 import random
 from time import sleep
+from selenium.common.exceptions import MoveTargetOutOfBoundsException
 
 # profile is so you don't have to duo login every time
 profile = FirefoxProfile(c.firefox_profile_path)
@@ -33,6 +34,9 @@ countries = '/html/body/div[7]/md-select-menu/md-content/md-option['+str(region_
 driver.get(start_link)
 sleep(3) # it opens
 
+driver.find_element_by_xpath(region_dropdown).click()
+driver.find_element_by_xpath(countries).click()
+sleep(3)
 # click a link on the page 
 link = driver.execute_script(open("eval_list.js").read(), "arg1")
 driver.get(link)
@@ -54,23 +58,30 @@ y_pos=60
 for x in range(10):
 	x_pos = x_pos+10
 	try:
-		action.move_by_offset(x_pos, y_pos)
+		action.move_by_offset(x_pos, y_pos).click().perform()
 	except MoveTargetOutOfBoundsException as e:
+		print("on x click")
 		print(e)
 		x_pos = 0
+		action.move_to_element(driver.find_element_by_tag_name('body'))
+		action.move_by_offset(60, y_pos).click().perform()
 		continue
 	for y in range(10):
 		y_pos = y_pos+10
 		try:
-			action.move_by_offset(x_pos, y_pos)
+			action.move_by_offset(x_pos, y_pos).click().perform()
 		except MoveTargetOutOfBoundsException as e:
+			print("on y click")
 			print(e)
 			y_pos=0
+			action.move_to_element(driver.find_element_by_tag_name('body'))
+			action.move_by_offset(60, y_pos).click().perform()
 			continue
 		
-		action.click().perform()
+		# action.click().perform()
 		action.send_keys(Keys.ESCAPE).perform()
 		print("ok")
+
 exit()
 
 
